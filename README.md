@@ -17,8 +17,6 @@ doi: https://doi.org/10.1101/2021.07.15.452443
 
 Installation
 
-Install from Bioconductor
-ComBat-seq is available in Bioconductor sva v3.36.0[2,3], please download and install following instructions in the link to Bioconductor sva. I am not a maintainer for the Bioconductor sva package, and may not be able to address some issues in that version (many of the issues are related to package dependencies and versions).
 
 # Install from GitHub
 To use rnbtn from my GitHub, you will need to properly install devtools package, and download the rnbtbn package with
