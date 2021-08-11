@@ -27,8 +27,6 @@ devtools::install_github("vsarsani/rnbtn")
 # Install from Bioconductor
 We are under the process of submitting/reviewing this package to Bioconductor.It might be available in the future release of Bioconductor.
 
-install.packages("devtools")
-devtools::install_github("vsarsani/rnbtn")
 
 
 # Usage
