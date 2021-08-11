@@ -20,7 +20,7 @@
 #' 
 
 
-rnbtn_model_pergene <- function(x, y, locus_tag=NULL, intercept=FALSE, parallel=TRUE, 
+rnbtn_model_pergene <- function(x, y, locus_tag=NULL, intercept=FALSE, parallel=FALSE, 
                        alpha=0, iter=10){ 
     
     # Required packages glmnet and MASS
