@@ -1,7 +1,7 @@
 #' rnbtn uses regularized negative binomial regression to estimate the change in transposon insertions attributable to gene-environment changes 
 #without transformations or uniform normalization
 #' 
-#' This function construcst locfdr value for each mean effect
+#' This function constructs locfdr value for each mean effect
 #' 
 #' @param df : dataframe of model results from  rnbtn_model_agg.R or rnbtn_model_agg_parallel.R
 #' @param dfmean : dataframe of means from rnbtn_mean_agg.R
