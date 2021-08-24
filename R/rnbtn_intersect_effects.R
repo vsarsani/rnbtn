@@ -1,42 +1,47 @@
-#' rnbtn uses regularized negative binomial regression to estimate the change in transposon insertions attributable to gene-environment changes 
+#' rnbtn uses regularized negative binomial regression to
+#' estimate the change in transposon insertions attributable
+#' to gene-environment changes
 #without transformations or uniform normalization
-#' 
-#' This function combines results from the total and unique counts and produces intersected .csv files and plots
-#' 
-#' @param TC_files   : A list of Total counts files along with full path. Each file should have columns of fdr,log2_coefficient,locus_tag,mean,controlmean
-#' @param UC_files   : A list of Unique counts files along with full path.Each file should have fdr,log2_coefficient,locus_tag,mean,controlmean
-#' @param path: A path to write output files. 
+#'
+#' This function combines results from the total and unique
+#'  counts and produces intersected .csv files and plots
+#'
+#' @param TC_files   : A list of Total counts files along with full path.
+#' Each file should have columns of fdr,log2_coefficient,locus_tag,mean,controlmean
+#' @param UC_files   : A list of Unique counts files along with full path.
+#' Each file should have fdr,log2_coefficient,locus_tag,mean,controlmean
+#' @param path: A path to write output files.
 #' @param fdrcutoff: A cutoff for significant locus_tags.Default is 0.05
 
 #'
 
-#' 
-#' @examples 
-#' 
+#'
+#' @examples
+#'
 #TC_files <- list.files("../../reports/TC_fdr_csv",pattern='*effect.csv',full.names = TRUE)
 #UC_files <- list.files("../../reports/UC_fdr_csv",pattern='*effect.csv',full.names = TRUE)
 #path <- "../../reports/fdr_csv/"
 #rnbtn_intersect_effects(TC_files,UC_files,path,fdrcutoff=0.05)
 
-#' 
-#' 
+#'
+#'
 #' @export
-#' 
+#'
 
-rnbtn_intersect_effects <- function(TC_files,UC_files,path,fdrcutoff=0.05){ 
-    
+rnbtn_intersect_effects <- function(TC_files,UC_files,path,fdrcutoff=0.05){
+
     # Required packages tidyverse,reshape and doParallel
     suppressMessages(require(ggpubr))
     suppressMessages(require(tidyverse))
-    
-    
+
+
   ## validate input TC_files and UC_files
 if(length(TC_files)!=length(UC_files)){
     stop("The Total counts and Unique counts files have different lengths.Make sure that number of effect files are same for both")
   } else{
        cat("Running the intersection")
-   } 
-    
+   }
+
 for (i in 1:length(TC_files))
 {
     tryCatch({
@@ -61,17 +66,17 @@ if(all(c('fdr','log2_coefficient','locus_tag','mean','controlmean') %in% names(u
 }
 else {
 cat("The fdr results input of UC does not have some of fdr,log2_coefficient,locus_tag,mean,controlmean columns ","\n")
-}      
-    
-# merge them by using locus_tag         
+}
+
+# merge them by using locus_tag
 df <- na.omit(merge(tdf, udf, by = "locus_tag", all = TRUE))
 colnames(df)<- c("locus_tag","Total.fdr","Total.coefficient","Total.mean","Total.Control.Mean","Unique.fdr","Unique.coefficient","Unique.mean","Unique.Control.Mean")
-        
-#seperate out uniquely significant 
+
+#seperate out uniquely significant
 dfplot1<- df%>%mutate(fdr = case_when(Unique.fdr  < fdrcutoff  ~ "Unique_sig" ))
-#seperate out total significant 
+#seperate out total significant
 dfplot2<- df%>%mutate(fdr = case_when(Total.fdr < fdrcutoff  ~ "Total_sig" ))
-#seperate out non significant 
+#seperate out non significant
 dfplot3<- df%>%mutate(fdr = case_when(Total.fdr > fdrcutoff & Unique.fdr  > fdrcutoff  ~ "ns" ))
 #combine
 dfplot <- rbind(dfplot1,dfplot2,dfplot3)%>%drop_na()
@@ -92,5 +97,5 @@ write_csv(dfb,(file.path(path,paste0("TC_",condition, "_sig.csv"))[1]))
 # write plots
 suppressWarnings(ggsave(filename = (file.path(path,paste0(condition, "_figure.pdf"))[1]), device = "pdf",  plot = p, width = 7, height = 7, dpi = 300, units = "in"))
    }, error=function(e){})
-} 
+}
 }
