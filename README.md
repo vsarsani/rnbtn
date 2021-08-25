@@ -5,7 +5,7 @@ rnbtn is a model-based method that uses regularized negative binomial regression
 
 Our approach for integrating all of the experimental data to estimate the effect of the many genetic backgrounds and the environmental conditions is based on a generalized linear 
 model framework.Estimating the model parameters when the number of transposon count is small has been noted by others and handled either by filtration 
-addition of pseudo-counts . The low counts in response variables can result in inflated regression coefficients and are susceptible to very high variance. They also affect false discovery rate procedures increasing the risk of type-I errors. Hencem we apply a regularized negative binomial regression in a nexted GLM fashion.
+addition of pseudo-counts . The low counts in response variables can result in inflated regression coefficients and are susceptible to very high variance. They also affect false discovery rate procedures increasing the risk of type-I errors. Hence we apply a regularized negative binomial regression in a nexted GLM fashion.
 
 
 
