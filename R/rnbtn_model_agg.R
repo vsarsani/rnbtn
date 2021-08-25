@@ -1,52 +1,58 @@
-#' rnbtn uses regularized negative binomial regression to estimate
-#' the change in transposon insertions attributable to gene-environment changes
-# without transformations or uniform normalization
-#'
-#' This function aggregates model results from rnbtn_model_pergene function
-#'  for all genes in a serial fashion
-#'
-#' @param df : dataframe containing counts,covariates in the long format
+
+#' rnbtn_model_agg aggregates the regularized nested negative binomial
+#' model results for all genes in a serial fashion.
+
+#' @param df : Dataframe containing counts, covariates in the long format
 #' @param formula : Provide model matrix formula using as.formula()
-#' @param locus_tag : column corresponding to gene names/locus tags .Ex: 'gene'
+#' @param locus_tag : A column corresponding to gene names/locus tags .Ex: 'gene'
 #' @param fctrel : A list of column names and desired factor relevels .
-#' Example :  rlist<- list(condition = c('CONTROL','T1','T2',),strain = c('WT','KO','DO'),slevel = c('none','LOW','MEDIUM','HIGH'),
-#'batch = c('1','2','3','4'))
-#' @param alpha : elastic net mixing parameter . Default is zero
-#' @param iter: Number of times to run cross validation to take the mean error associated with each lambda value, and then choose lambda.Default is 10
-# Note: iter increases your run time
-#'
+#' @param a : elastic net mixing parameter . Default is zero
+#' @param iter: Number of times to run cross validation to take
+#' the mean error associated with each lambda value, and
+#'  then choose lambda.Default is 5. iter increases your run time
 
-#'
+
+#' @import MASS
+#' @import glmnet
+#' @import tidyverse
+#' @import dplyr
+#' @import reshape
+#' @import forcats
+
 #' @examples
-#'
-#' formula <- as.formula(exp~strain/condition/slevel+batch+log(N))
-#' fctrel <-
-#' list(condition = c('CONTROL','DIS1','DIS2'),strain = c('WT','KP','DO'),slevel
-#' = c('none','LOW','MEDIUM','HIGH'), batch = c('1','2','3','4'))
-#' rnbtn_model_agg(df,formula,locus_tag='gene_name',fctrel=fctrel,iter=5,a=0)
-
-#'
-#'
+#' #Simulating and selecting Counts
+#' TC_df <- rnbtn_simulate_data(n_strain=3,n_condition=4,n_slevel=3,n_rep=2)[[1]]
+#' #Selecting only first twenty locus tags as an  example
+#' locuslist <- TC_df$locus_tag[1:20]
+#' TC_20_df <- subset(TC_df, locus_tag %in% locuslist)
+#' #Preparing covariate desired levels for fct_relevel
+#' fct_rel <- list(strain=c("strain_1","strain_2","strain_3"),
+#' condition=c("condition_1","condition_2","condition_3","condition_4"),
+#' slevel=c("slevel_1","slevel_2","slevel_3"))
+#' #Model nested formula
+#' formula <- as.formula(tncnt ~ strain/condition/slevel)
+#' #Run and aggregrate model results
+#' rnbtn_model_agg(TC_20_df,formula = formula,locus_tag = "locus_tag",
+#' fctrel = fct_rel, iter =2, a=0)
 #' @export
-#'
 
-rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, iter = 5,
-    a = 0) {
+rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag,
+                            fctrel = NONE, iter = 5, a = 0) {
 
-    # Required packages tidyverse,reshape and doParallel
-    suppressMessages(require(tidyverse))
-    suppressMessages(require(reshape))
 
     ## validate input df
     if (is.data.frame(df) == FALSE) {
-        stop("Input data frame is not in the data frame data type. Please convert it")
+        stop("Input data frame is not in the data frame data type.
+             Please convert it")
     }
     if (ncol(df) < 3) {
-        stop("The data frame should have atleast one covariate, response and gene column")
+        stop("The data frame should have atleast one covariate,
+             response and gene column")
     }
     if (!is.null(fctrel)) {
         if (is.list(fctrel) == FALSE & is.null(names(fctrel)) == TRUE) {
-            stop("Factor relevel parameter should be a list with names corresponding to the desired columns and levels")
+            stop("Factor relevel parameter should be a list with names
+                 corresponding to the desired columns and levels")
         }
     }
 
@@ -59,10 +65,9 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
     }
 
     #### Modeling Function
-    rnbtn_model_pergene <- function(df, formrula, res_name, locus_tag = locus_tag,
+    rnbtn_model_pergene <- function(df, formula, res_name,
+                                    locus_tag = locus_tag,
         iter = iter, a = a) {
-        suppressMessages(require(glmnet))
-        suppressMessages(require(MASS))
         # Extract the genename from the model
         locus_tag <- as.character(unique(df$locus_tag))
         x <- model.matrix(as.formula(formula), df)
@@ -71,10 +76,11 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
             x <- model.matrix(as.formula(formula), df)
             y <- df[[res_name]]
             lambda_seq <- 10^seq(2, -2, by = -0.1)
-            t <- glm.nb(as.formula(formula), df)$theta
+            t <- MASS::glm.nb(as.formula(formula), df)$theta
             lambdas <- NULL
             for (i in 1:iter) {
-                fit <- cv.glmnet(x, y, alpha = a, lambda = lambda_seq, family = negative.binomial(theta = t),
+                fit <- glmnet::cv.glmnet(x, y, alpha = a, lambda = lambda_seq,
+                                 family = negative.binomial(theta = t),
                   parallel = FALSE, intercept = FALSE)
                 errors <- data.frame(fit$lambda, fit$cvm)
                 lambdas <- rbind(lambdas, errors)
@@ -85,7 +91,9 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
             # select the best one
             bestindex <- which(lambdas[2] == min(lambdas[2]))
             best_lambda <- lambdas[bestindex, 1]
-            best_ridge <- glmnet(x, y, alpha = a, lambda = best_lambda, family = negative.binomial(theta = t),intercept = FALSE)
+            best_ridge <- glmnet::glmnet(x, y, alpha = a, lambda = best_lambda,
+                                 family = negative.binomial(theta = t),
+                                 intercept = FALSE)
         }, error = function(err) {
             status <<- err$message
             return(NULL)
@@ -97,7 +105,7 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
         ## 8 columns. Change this
         if (is.null(coef(model))) {
             cat("Unable to fit model for this locus_tag :", locus_tag, "\n")
-            namatrix <- t(as.matrix(rep("NA", col_length)))
+            namatrix <- t(as.matrix(rep(NA, col_length)))
             row.names(namatrix) <- locus_tag
             return(namatrix)
         } else {
@@ -110,29 +118,31 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
     }
 
 
-
+    `%>%` <- dplyr::`%>%`
     #### Gene/locus wise Fits
 
     # For Each gene run the model and store results
     locusresults <- list()
     locuslist <- unique(df[[locus_tag]])
-    cat("Running model in serial.This might take a while. If you want to speed it up, use parallel option",
+    cat("Running model in serial.This might take a while.
+        If you want to speed it up, use parallel option",
         "\n")
 
     suppressWarnings(suppressMessages(for (i in 1:length(locuslist)) {
         g <- locuslist[i]
         # Selecting gene/locus tag from list
-        df_g <- df %>% filter(locus_tag == g)
+        df_g <- df %>% dplyr::filter(locus_tag == g)
         # Applying factor relevels
         if (!is.null(fctrel)) {
             for (i in names(fctrel)) {
-                df_g[[i]] <- fct_relevel(factor(df_g[[i]]), unname(fctrel[i]))
+                df_g[[i]] <- forcats::fct_relevel(factor(df_g[[i]]), unname(fctrel[i]))
             }
         }
 
         # using rnbtn_model_pergene function
 
-        locusresults[[g]] <- suppressWarnings(suppressMessages(rnbtn_model_pergene(df_g,
+        locusresults[[g]] <- suppressWarnings(suppressMessages(
+          rnbtn_model_pergene(df_g,
             formula, res_name, locus_tag = "g", iter = 5, a = 0)))
         # garbage collector
         gc()
@@ -140,15 +150,23 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
     }))
     ## Post-Process and storing results in a data frame Here L1 is dummy header
     ## given by melt function
-    suppressWarnings(mod_data <- melt(locusresults) %>%
+    suppressWarnings(mod_data <- reshape::melt(locusresults) %>%
         dplyr::select(-L1))
     # Select only gene,effect and coefficient
     colnames(mod_data) <- c("locus_tag", "effect", "coeff")
     col_length <- length(unique(mod_data[["effect"]]))
+    # Stop if none of models fit
+    if (all(is.na(mod_data$coeff))== TRUE) {
+        stop(" glmnet failed on all locus_tags. Please recheck
+your dataframe or formula ")
+    }
+
+
+
     # Scale coefficient to log2
     suppressWarnings(mod_data <- mod_data %>%
-        mutate(coeff_log2value = as.numeric(coeff)/log(2)) %>%
-        filter(!effect %in% (1:col_length)))
+        dplyr::mutate(coeff_log2value = as.numeric(coeff) / log(2)) %>%
+        dplyr::filter(!effect %in% (1:col_length)))
 
     # Restore genes/locus_tags that failed model as 'NA' so that we have an
     # record of them
@@ -158,14 +176,15 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
         if (nrow(mod_data %>%
             filter(locus_tag == g)) == 0) {
 
-            missed <- melt(unique(mod_data$effect))
+            missed <- reshape::melt(unique(mod_data$effect))
             missedresults[[g]] <- missed %>%
-                mutate(locus_tag = g, effect = value, coeff = "NA", coeff_log2value = "NA") %>%
+                dplyr::mutate(locus_tag = g, effect = value, coeff = "NA",
+                       coeff_log2value = "NA") %>%
                 dplyr::select(-value)
         }
     }))
     # Here L1 is dummy header given by melt function.Remove that header
-    suppressWarnings(suppressMessages(missed_data <- melt(missedresults) %>%
+    suppressWarnings(suppressMessages(missed_data <- reshape::melt(missedresults) %>%
         dplyr::select(-L1)))
     # Combining both missed and model results
     total_model_data <- rbind(mod_data, missed_data)
@@ -176,9 +195,11 @@ rnbtn_model_agg <- function(df, formula, locus_tag = locus_tag, fctrel = NONE, i
     final_tags <- length(unique(total_model_data$locus_tag))
 
     if (initial_tags != final_tags) {
-        cat("The gene/locus tags in the output are not equal to the initial input. ")
+        cat("The gene/locus tags in the output are
+            not equal to the initial input. ")
     } else {
-        cat("The gene/locus tags in the output are equal to the initial input.Process Finished ")
+        cat("The gene/locus tags in the output are
+            equal to the initial input.Process Finished ")
     }
 
     return(total_model_data)

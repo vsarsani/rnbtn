@@ -4,7 +4,30 @@ Title: Regularized nested negative binomial model with local false discovery for
 Version: 0.1.0
 Author: Vishal Sarsani
 Maintainer: Vishal Sarsani <vsarsani@umass.edu>
-Description: Our approach employs a negative binomial generalized linear model that employs a Bayesian prior over coefficients that manifests as a regularization term in the regression formulation.
+Description: Our approach employs a nested negative binomial generalized linear model that employs a Bayesian prior over coefficients that manifests as a regularization term in the regression formulation.
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
+Depends:
+    R (>= 4.0.0)
+Imports:
+    tidyverse,
+    reshape,
+    glmnet,
+    doParallel,
+    plyr,
+    MASS,
+    locfdr,
+    fdrtool,
+    ggpubr,
+    dplyr,
+    parallel,
+    foreach,
+    forcats,
+    purrr,
+    tidyr,
+    stringr,
+    ggpubr,
+    ggplot2,
+    ParallelLogger
+RoxygenNote: 7.1.1
