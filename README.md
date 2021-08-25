@@ -15,7 +15,7 @@ rnbtn is available at biorxiv:
 Model-based identification of conditionally-essential genes from transposon-insertion sequencing data ,
 doi: https://doi.org/10.1101/2021.07.15.452443
 
-Installation
+## Installation
 
 
 # Install from GitHub
