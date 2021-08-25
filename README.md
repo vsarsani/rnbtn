@@ -1,4 +1,4 @@
-## About rnbtn Package
+### About rnbtn Package
 
 rnbtn is a model-based method that uses regularized negative binomial regression to estimate the change in transposon insertions attributable to gene-environment changes without transformations or uniform normalization. An empirical Bayes model for estimating the local false discovery rate combines unique and total count information to test for genes that show a statistically significant change in transposon counts. When applied to RB-TnSeq (randomized barcode transposon sequencing) and Tn-seq (transposon sequencing) libraries made in strains of Caulobacter crescentus using both total and unique count data the model was able to identify a set of conditionally essential genes for each target condition that shed light on their functions and roles during various stress conditions.
 
