@@ -80,7 +80,7 @@ model_df <- rnbtn_model_agg_parallel(TC_df,formula = formula, locus_tag = "locus
 Construct mean and control mean for the nested/unnested factors listed in the fctrel from the dataframe
 
 ```r
-df_mean <- rnbtn_mean_agg(TC_500_df,tncnt = 'tncnt',fctrel = fct_rel)
+df_mean <- rnbtn_mean_agg(TC_df,tncnt = 'tncnt',fctrel = fct_rel)
 ```
 
 
