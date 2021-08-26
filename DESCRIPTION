@@ -27,7 +27,6 @@ Imports:
     purrr,
     tidyr,
     stringr,
-    ggpubr,
     ggplot2,
     ParallelLogger
 RoxygenNote: 7.1.1
