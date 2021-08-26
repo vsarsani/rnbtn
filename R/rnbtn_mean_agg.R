@@ -93,7 +93,8 @@ rnbtn_mean_agg <- function(df, tncnt = tncnt,
     paste(name, cov_sel[, name], sep = "")
   })) %>%
     tidyr::unite(effect, 1:ncol(.), sep = ":") %>%
-    dplyr::mutate_at("effect", stringr::str_replace, ":.*NA", "")
+    dplyr::mutate_at("effect", stringr::str_replace, ":*:NA", "") %>%
+    dplyr::mutate_at("effect", stringr::str_replace, ":NA", "")
   df_total["effect"] <- effect_df
 
   ## validate output df
