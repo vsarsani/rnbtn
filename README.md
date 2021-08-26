@@ -64,13 +64,13 @@ fct_rel <- list(strain=c("strain_1","strain_2","strain_3"),
  ```
 
 
-Run the regularized negative binomial regression model on all locus_tags in serial fashion
+Run the regularized negative binomial regression model on all locus_tags in a serial fashion
 
 ```r
 model_df <- rnbtn_model_agg(TC_df,formula = formula,locus_tag = "locus_tag", fctrel = fct_rel, iter =2, a=0)
  ```
 
-Run the regularized negative binomial regression model on all locus_tags in parallel fashion with 10 cores
+Run the regularized negative binomial regression model on all locus_tags in a parallel fashion with 10 cores
 
 ```r
 model_df <- rnbtn_model_agg_parallel(TC_df,formula = formula, locus_tag = "locus_tag",fctrel = fct_rel,
