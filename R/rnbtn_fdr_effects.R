@@ -47,7 +47,7 @@
 #' @export
 
 rnbtn_fdr_effects <- function(df, dfmean, locus_tag = "locus_tag", exeffects = c("Intercept",
-    "batch", "log"), fecutoff = 1, cecutoff = 1, path, method = "locfdr") {
+    "batch", "log"), fecutoff = 1, cecutoff = 1, method = "locfdr") {
 
 
     ## validate input df
