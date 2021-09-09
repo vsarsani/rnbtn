@@ -97,7 +97,7 @@ rnbtn_mean_agg <- function(df, tncnt = tncnt,
   # Prepare strings to replace 
   find.list <- paste(":",names(fct_rel), "NA", sep="")
   find.string <- paste(unlist(find.list), collapse = "|")
-  df_total <- df_total%>%mutate(effect=gsub(find.string, replacement = "", x = effect))
+  df_total <- df_total%>%dplyr::mutate(effect=gsub(find.string, replacement = "", x = effect))
   ## validate output df
   if (is.data.frame(df_total) == FALSE) {
     stop("Output data frame is not in the data
