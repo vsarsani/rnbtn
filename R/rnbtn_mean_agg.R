@@ -92,7 +92,7 @@ rnbtn_mean_agg <- function(df, tncnt = tncnt,
   effect_df <- as.data.frame(sapply(colnames(cov_sel), function(name) {
     paste(name, cov_sel[, name], sep = "")
   })) %>%
-    tidyr::unite(effect, 1:ncol(.), sep = ":") %>%
+    tidyr::unite(effect, 1:ncol(.), sep = ":") 
   df_total["effect"] <- effect_df
   # Prepare strings to replace 
   find.list <- paste(":",names(fct_rel), "NA", sep="")
