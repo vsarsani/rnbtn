@@ -11,7 +11,6 @@ rnbtn_fdr_effects(
   exeffects = c("Intercept", "batch", "log"),
   fecutoff = 1,
   cecutoff = 1,
-  path,
   method = "locfdr"
 )
 }
