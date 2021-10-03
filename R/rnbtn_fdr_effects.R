@@ -109,14 +109,12 @@ rnbtn_fdr_effects <- function(df, dfmean, locus_tag = "locus_tag", exeffects = c
 
                 coef.df <- coef.df %>%
                   dplyr::filter(pmax(mean, controlmean) > cecutoff) %>%
-                  dplyr::filter(pmin(mean, controlmean) > cecutoff) %>%
                   dplyr::mutate(fdr = (locfdr::locfdr(n_log2_coefficient, plot = 0)$fdr)) %>%
                   dplyr::select(-n_log2_coefficient)
 
             } else {
                 coef.df <- coef.df %>%
                   dplyr::filter(pmax(mean, controlmean) > cecutoff) %>%
-                  dplyr::filter(pmin(mean, controlmean) > cecutoff) %>%
                   dplyr::mutate(fdr = (fdrtool::fdrtool(n_log2_coefficient, cutoff.method = "locfdr",
                     plot = FALSE, verbose = FALSE)$lfdr)) %>%
                   dplyr::select(-n_log2_coefficient)
